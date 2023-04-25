@@ -1,0 +1,63 @@
+services:
+
+  haystack-api:
+    image: "deepset/haystack:gpu"
+    networks:
+      - mark2.0
+    volumes:
+      - ./rest_api/rest_api/pipeline:/opt/pipelines
+      - ./rest_api/rest_api/:/opt/rest_api
+    user: "root"
+    ports:
+      - 8000:8000
+    command: bash -c "gunicorn rest_api.application:app -b 0.0.0.0 -k uvicorn.workers.UvicornWorker --workers 1 --timeout 180 --reload"
+    restart: on-failure
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            count: 1
+            capabilities: [gpu]    
+    environment:
+      - DOCUMENTSTORE_PARAMS_HOST=elasticsearch
+      - PIPELINE_YAML_PATH=/opt/pipelines/pipelines.haystack-pipeline.yml
+      #- PIPELINE_YAML_PATH=/opt/pipelines/pipelines_dpr.haystack-pipeline.yml
+      - TOKENIZERS_PARALLELISM=false
+      - CUDA_VISIBLE_DEVICES=0
+      - NVIDIA_VISIBLE_DEVICES=0
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_REQUIRE_CUDA=cuda>=11.0
+      - DGLBACKEND=pytorch
+      - CUBLAS_WORKSPACE_CONFIG=:16:8
+      - WATCHFILES_FORCE_POLLING=true
+      # Uncomment the following line to customise how much time (in seconds) a worker can spend serving a request
+      # before it times out. This should include the time required to cache the models and setup the pipelines.
+
+      # - GUNICORN_CMD_ARGS="--reload"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    profiles: ["haystack"]
+
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.17.6"
+    #image: "deepset/elasticsearch-countries-and-capitals"
+    networks:
+      - mark2.0
+    ports:
+      - 9200:9200
+    restart: on-failure
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms1024m -Xmx1024m"
+    healthcheck:
+        test: curl --fail http://localhost:9200/_cat/health || exit 1
+        interval: 10s
+        timeout: 1s
+        retries: 10
+    profiles: ["es"]
+
+networks:
+  mark2.0:
+    external: true

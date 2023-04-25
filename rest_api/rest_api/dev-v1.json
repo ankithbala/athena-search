@@ -1,0 +1,25 @@
+{
+  "data": [
+    {
+      "paragraphs": [
+        {
+          "context": "...In the past semesters, there were several times when the video of the\nsession was missed due to the tical issues that were not dependent on us.\nCan this course satisfy breadth/depth requirements?\nANSWER: Yes, the course can be used to satisfy the depth requirement\nfor the AI focus area for the CSE MS program. If you want to check\nregarding your program, please get in touch with your coordinator.\nI want to prepare for the course, what can I do?\n...",
+          "id": "4ead79e28c986832592d8451eb2ab117",
+          "qas": [
+            {
+              "question": "Can this course satisfy breadth/depth requirements?",
+              "id": "ff12ac28-5a3f-406e-b14b-1a1ba12c0c77",
+              "is_impossible": false,
+              "answers": [
+                {
+                  "text": "Yes, the course can be used to satisfy the depth requirement",
+                  "answer_start": 204
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
